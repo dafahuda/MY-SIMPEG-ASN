@@ -1,9 +1,9 @@
 {
-  "name": "supa-next-starter",
-  "description": "A production ready Next.js/Supabase starter. ",
+  "name": "simpeg-asn",
+  "description": "Sistem Informasi Manajemen Pegawai ASN",
   "version": "1.0.0",
   "private": true,
-  "author": "Michael Troya <hi@michaeltroya.ca> (@michaeltroya)",
+  "author": "Tim SIMPEG",
   "license": "MIT",
   "keywords": [
     "nextjs",
