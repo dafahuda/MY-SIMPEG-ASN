@@ -119,6 +119,54 @@ export type Database = {
           },
         ]
       }
+      app_settings: {
+        Row: {
+          setting_id: string
+          setting_key: string
+          setting_value: string | null
+          setting_type: string
+          kategori: string
+          label: string
+          deskripsi: string | null
+          urutan: number
+          is_public: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          setting_id: string
+          setting_key: string
+          setting_value?: string | null
+          setting_type?: string
+          kategori?: string
+          label: string
+          deskripsi?: string | null
+          urutan?: number
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          setting_id?: string
+          setting_key?: string
+          setting_value?: string | null
+          setting_type?: string
+          kategori?: string
+          label?: string
+          deskripsi?: string | null
+          urutan?: number
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       approval_log: {
         Row: {
           actor_user_id: string

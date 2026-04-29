@@ -43,6 +43,9 @@ export type RiwayatUsulan = Tables<'riwayat_usulan'>
 // Dokumen
 export type DokumenPegawai = Tables<'dokumen_pegawai'>
 
+// App Settings
+export type AppSetting = Tables<'app_settings'>
+
 // Auth & Roles
 export type Role = Tables<'roles'>
 export type UserRole = Tables<'user_roles'>
