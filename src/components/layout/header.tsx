@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
 import { Search, type LucideIcon } from 'lucide-react'
 
+import type { BrandingData } from '@/lib/services/app-settings'
 import { SIDEBAR_NAV } from '@/lib/constants/navigation'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
@@ -61,7 +62,11 @@ type SearchItem = {
   icon: LucideIcon
 }
 
-export function Header() {
+type HeaderProps = {
+  branding: BrandingData
+}
+
+export function Header({ branding }: HeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
@@ -145,7 +150,7 @@ export function Header() {
       <CommandDialog
         open={open}
         onOpenChange={setOpen}
-        title="Cari menu SIMPEG"
+        title={`Cari menu ${branding.appName}`}
         description="Pilih modul dashboard yang ingin dibuka."
         className="sm:max-w-xl"
       >

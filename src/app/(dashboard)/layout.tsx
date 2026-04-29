@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { connection } from 'next/server'
 
 import { createClient } from '@/supabase/server'
+import { getBranding } from '@/lib/services/app-settings'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { Header } from '@/components/layout/header'
@@ -30,11 +31,13 @@ export default async function DashboardLayout({
     role: user?.app_metadata?.role as string | undefined,
   }
 
+  const branding = await getBranding()
+
   return (
     <SidebarProvider>
-      <AppSidebar user={userInfo} />
+      <AppSidebar user={userInfo} branding={branding} />
       <SidebarInset>
-        <Header />
+        <Header branding={branding} />
         <main className="flex-1 overflow-auto p-4 md:p-6">
           <Suspense>{children}</Suspense>
         </main>

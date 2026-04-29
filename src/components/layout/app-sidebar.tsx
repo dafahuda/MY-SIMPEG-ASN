@@ -1,9 +1,11 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ChevronRight, ShieldCheck } from 'lucide-react'
 
+import type { BrandingData } from '@/lib/services/app-settings'
 import { SIDEBAR_NAV } from '@/lib/constants/navigation'
 import {
   Sidebar,
@@ -32,10 +34,15 @@ type AppSidebarProps = {
     avatar?: string
     role?: string
   }
+  branding: BrandingData
 }
 
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar({ user, branding }: AppSidebarProps) {
   const pathname = usePathname()
+
+  const hasLogo =
+    branding.logoUrl &&
+    branding.logoUrl !== '/images/logo.png'
 
   return (
     <Sidebar collapsible="icon">
@@ -44,13 +51,25 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <ShieldCheck className="size-4" />
-                </div>
+                {hasLogo ? (
+                  <Image
+                    src={branding.logoUrl}
+                    alt={branding.appName}
+                    width={32}
+                    height={32}
+                    className="aspect-square size-8 rounded-lg object-contain"
+                  />
+                ) : (
+                  <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                    <ShieldCheck className="size-4" />
+                  </div>
+                )}
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">SIMPEG ASN</span>
+                  <span className="truncate font-semibold">
+                    {branding.appName}
+                  </span>
                   <span className="text-muted-foreground truncate text-xs">
-                    Manajemen Pegawai
+                    {branding.instansiNama || branding.appDescription}
                   </span>
                 </div>
               </Link>
