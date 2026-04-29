@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
@@ -42,12 +43,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
           enableSystem
           disableTransitionOnChange
         >
-          <ReactQueryProvider>
-            {children}
-            <Toaster richColors position="top-right" />
-            <Analytics />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </ReactQueryProvider>
+          <Suspense>
+            <ReactQueryProvider>
+              {children}
+              <Toaster richColors position="top-right" />
+              <Analytics />
+              <ReactQueryDevtools initialIsOpen={false} />
+            </ReactQueryProvider>
+          </Suspense>
         </ThemeProvider>
       </body>
     </html>
