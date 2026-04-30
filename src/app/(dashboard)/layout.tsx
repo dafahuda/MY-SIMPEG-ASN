@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import type { Metadata } from 'next'
 import { connection } from 'next/server'
 
 import { createClient } from '@/supabase/server'
@@ -6,6 +7,18 @@ import { getBranding } from '@/lib/services/app-settings'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { Header } from '@/components/layout/header'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const branding = await getBranding()
+
+  return {
+    title: {
+      default: branding.appName,
+      template: `%s | ${branding.appName}`,
+    },
+    description: branding.appDescription,
+  }
+}
 
 type DashboardLayoutProps = {
   children: React.ReactNode

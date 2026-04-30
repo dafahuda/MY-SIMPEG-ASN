@@ -8,23 +8,18 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'sonner'
 import './globals.css'
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
-import { getBranding } from '@/lib/services/app-settings'
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : 'http://localhost:3000'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const branding = await getBranding()
-
-  return {
-    metadataBase: new URL(defaultUrl),
-    title: {
-      default: branding.appName,
-      template: `%s | ${branding.appName}`,
-    },
-    description: branding.appDescription,
-  }
+export const metadata: Metadata = {
+  metadataBase: new URL(defaultUrl),
+  title: {
+    default: 'SIMPEG ASN',
+    template: '%s | SIMPEG ASN',
+  },
+  description: 'Sistem Informasi Manajemen Pegawai ASN',
 }
 
 const geistSans = Geist({
