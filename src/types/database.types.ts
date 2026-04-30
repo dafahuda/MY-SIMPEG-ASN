@@ -2802,6 +2802,7 @@ export type Database = {
           is_active: boolean
           is_system: boolean
           kode_role: string
+          level: number
           nama_role: string
           role_id: string
           updated_at: string
@@ -2814,6 +2815,7 @@ export type Database = {
           is_active?: boolean
           is_system?: boolean
           kode_role: string
+          level?: number
           nama_role: string
           role_id: string
           updated_at?: string
@@ -2826,6 +2828,7 @@ export type Database = {
           is_active?: boolean
           is_system?: boolean
           kode_role?: string
+          level?: number
           nama_role?: string
           role_id?: string
           updated_at?: string
