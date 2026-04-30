@@ -807,6 +807,45 @@ export type Database = {
         }
         Relationships: []
       }
+      master_jenis_kelamin: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          is_active: boolean
+          jenis_kelamin_id: string
+          keterangan: string | null
+          kode_jenis_kelamin: string
+          nama_jenis_kelamin: string
+          updated_at: string
+          updated_by: string | null
+          urutan: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          is_active?: boolean
+          jenis_kelamin_id: string
+          keterangan?: string | null
+          kode_jenis_kelamin: string
+          nama_jenis_kelamin: string
+          updated_at?: string
+          updated_by?: string | null
+          urutan?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          is_active?: boolean
+          jenis_kelamin_id?: string
+          keterangan?: string | null
+          kode_jenis_kelamin?: string
+          nama_jenis_kelamin?: string
+          updated_at?: string
+          updated_by?: string | null
+          urutan?: number
+        }
+        Relationships: []
+      }
       master_jenis_kenaikan_pangkat: {
         Row: {
           created_at: string
@@ -1178,6 +1217,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           is_active: boolean
+          is_pasangan: boolean
           keterangan: string | null
           kode_status_keluarga: string
           nama_status_keluarga: string
@@ -1190,6 +1230,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           is_active?: boolean
+          is_pasangan?: boolean
           keterangan?: string | null
           kode_status_keluarga: string
           nama_status_keluarga: string
@@ -1202,6 +1243,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           is_active?: boolean
+          is_pasangan?: boolean
           keterangan?: string | null
           kode_status_keluarga?: string
           nama_status_keluarga?: string
@@ -1755,6 +1797,13 @@ export type Database = {
             referencedColumns: ['agama_id']
           },
           {
+            foreignKeyName: 'fk_pegawai_pribadi_jenis_kelamin'
+            columns: ['jenis_kelamin']
+            isOneToOne: false
+            referencedRelation: 'master_jenis_kelamin'
+            referencedColumns: ['jenis_kelamin_id']
+          },
+          {
             foreignKeyName: 'fk_pegawai_pribadi_pegawai'
             columns: ['pegawai_id']
             isOneToOne: true
@@ -2059,6 +2108,7 @@ export type Database = {
           gelar_belakang: string | null
           gelar_depan: string | null
           is_current: boolean | null
+          is_pasangan: boolean
           jenis_kelamin: string | null
           keluarga_id: string
           keterangan: string | null
@@ -2087,6 +2137,7 @@ export type Database = {
           gelar_belakang?: string | null
           gelar_depan?: string | null
           is_current?: boolean | null
+          is_pasangan?: boolean
           jenis_kelamin?: string | null
           keluarga_id: string
           keterangan?: string | null
@@ -2115,6 +2166,7 @@ export type Database = {
           gelar_belakang?: string | null
           gelar_depan?: string | null
           is_current?: boolean | null
+          is_pasangan?: boolean
           jenis_kelamin?: string | null
           keluarga_id?: string
           keterangan?: string | null
@@ -2143,6 +2195,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'master_agama'
             referencedColumns: ['agama_id']
+          },
+          {
+            foreignKeyName: 'fk_riwayat_keluarga_jenis_kelamin'
+            columns: ['jenis_kelamin']
+            isOneToOne: false
+            referencedRelation: 'master_jenis_kelamin'
+            referencedColumns: ['jenis_kelamin_id']
           },
           {
             foreignKeyName: 'fk_riwayat_keluarga_pegawai'
