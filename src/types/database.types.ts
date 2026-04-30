@@ -1619,6 +1619,48 @@ export type Database = {
           },
         ]
       }
+      modules: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deskripsi: string | null
+          icon_name: string | null
+          is_active: boolean
+          kode_module: string
+          module_id: string
+          nama_module: string
+          updated_at: string
+          updated_by: string | null
+          urutan: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deskripsi?: string | null
+          icon_name?: string | null
+          is_active?: boolean
+          kode_module: string
+          module_id: string
+          nama_module: string
+          updated_at?: string
+          updated_by?: string | null
+          urutan?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deskripsi?: string | null
+          icon_name?: string | null
+          is_active?: boolean
+          kode_module?: string
+          module_id?: string
+          nama_module?: string
+          updated_at?: string
+          updated_by?: string | null
+          urutan?: number
+        }
+        Relationships: []
+      }
       pegawai: {
         Row: {
           created_at: string
@@ -1816,6 +1858,56 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'master_status_perkawinan'
             referencedColumns: ['status_perkawinan_id']
+          },
+        ]
+      }
+      permissions: {
+        Row: {
+          aksi: string
+          created_at: string
+          created_by: string | null
+          deskripsi: string | null
+          is_active: boolean
+          kode_permission: string
+          module_id: string
+          nama_permission: string
+          permission_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          aksi: string
+          created_at?: string
+          created_by?: string | null
+          deskripsi?: string | null
+          is_active?: boolean
+          kode_permission: string
+          module_id: string
+          nama_permission: string
+          permission_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          aksi?: string
+          created_at?: string
+          created_by?: string | null
+          deskripsi?: string | null
+          is_active?: boolean
+          kode_permission?: string
+          module_id?: string
+          nama_permission?: string
+          permission_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'fk_permissions_module'
+            columns: ['module_id']
+            isOneToOne: false
+            referencedRelation: 'modules'
+            referencedColumns: ['module_id']
           },
         ]
       }
@@ -2835,6 +2927,54 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          granted_at: string
+          granted_by: string | null
+          is_active: boolean
+          permission_id: string
+          role_id: string
+          role_permission_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          granted_at?: string
+          granted_by?: string | null
+          is_active?: boolean
+          permission_id: string
+          role_id: string
+          role_permission_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          granted_at?: string
+          granted_by?: string | null
+          is_active?: boolean
+          permission_id?: string
+          role_id?: string
+          role_permission_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'fk_role_permissions_role'
+            columns: ['role_id']
+            isOneToOne: false
+            referencedRelation: 'roles'
+            referencedColumns: ['role_id']
+          },
+          {
+            foreignKeyName: 'fk_role_permissions_permission'
+            columns: ['permission_id']
+            isOneToOne: false
+            referencedRelation: 'permissions'
+            referencedColumns: ['permission_id']
+          },
+        ]
       }
       user_roles: {
         Row: {

@@ -50,6 +50,11 @@ export type AppSetting = Tables<'app_settings'>
 export type Role = Tables<'roles'>
 export type UserRole = Tables<'user_roles'>
 
+// Permission Matrix
+export type Module = Tables<'modules'>
+export type Permission = Tables<'permissions'>
+export type RolePermission = Tables<'role_permissions'>
+
 // Master Data (yang paling sering dipakai)
 export type MasterOpd = Tables<'master_opd'>
 export type MasterUnitKerja = Tables<'master_unit_kerja'>
