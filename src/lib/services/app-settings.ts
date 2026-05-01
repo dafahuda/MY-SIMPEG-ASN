@@ -1,5 +1,3 @@
-import { unstable_cache } from 'next/cache'
-
 import { createClient } from '@/supabase/server'
 
 // ─── Type-safe setting keys ──────────────────────────────────────
@@ -52,12 +50,15 @@ const BRANDING_DEFAULTS: BrandingData = {
   instansiNama: '',
 }
 
-// ─── Cached fetch: semua settings ────────────────────────────────
-// Cache selama 1 jam, revalidate via tag 'app-settings'.
-// Pemanggilan berulang dalam satu request di-deduplicate oleh React.
+// ─── Fetch semua settings ────────────────────────────────────────
+// Langsung query tanpa unstable_cache karena Next.js 16 melarang
+// cookies() di dalam cache scope. React request deduplication
+// sudah otomatis mencegah query berulang dalam satu render pass.
 
-export const getAppSettings = unstable_cache(
-  async (kategori?: string): Promise<Record<string, string | null>> => {
+export async function getAppSettings(
+  kategori?: string,
+): Promise<Record<string, string | null>> {
+  try {
     const supabase = await createClient()
 
     let query = supabase
@@ -81,10 +82,11 @@ export const getAppSettings = unstable_cache(
       result[row.setting_key] = row.setting_value
     }
     return result
-  },
-  ['app-settings'],
-  { tags: ['app-settings'], revalidate: 3600 },
-)
+  } catch {
+    // Fail-open: return empty jika DB belum tersedia
+    return {}
+  }
+}
 
 // ─── Fetch single setting ────────────────────────────────────────
 

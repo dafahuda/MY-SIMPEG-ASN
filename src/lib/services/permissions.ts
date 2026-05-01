@@ -1,5 +1,3 @@
-import { unstable_cache } from 'next/cache'
-
 import { createClient } from '@/supabase/server'
 import { SUPERADMIN_LEVEL } from './roles'
 
@@ -29,10 +27,10 @@ export type ModuleInfo = {
 /** Wildcard permission — SUPERADMIN memiliki semua akses */
 export const PERMISSION_ALL = '*'
 
-// ─── Cached fetch: semua modules aktif ───────────────────────────
+// ─── Fetch semua modules aktif ───────────────────────────────────
 
-export const fetchModules = unstable_cache(
-  async (): Promise<ModuleInfo[]> => {
+export async function fetchModules(): Promise<ModuleInfo[]> {
+  try {
     const supabase = await createClient()
     const { data, error } = await supabase
       .from('modules')
@@ -54,66 +52,66 @@ export const fetchModules = unstable_cache(
       urutan: m.urutan,
       isActive: m.is_active,
     }))
-  },
-  ['modules'],
-  { tags: ['modules'], revalidate: 3600 },
-)
+  } catch {
+    return []
+  }
+}
 
 // ─── getUserPermissions ──────────────────────────────────────────
 // Ambil semua permission codes untuk user berdasarkan active roles.
 // Multi-role: UNION semua permissions dari semua role aktif user.
 // SUPERADMIN bypass: return ['*'] (wildcard).
-// Cached per userId selama 5 menit.
 
-export function getUserPermissions(userId: string, userRoleLevel: number) {
-  return unstable_cache(
-    async (): Promise<string[]> => {
-      // SUPERADMIN bypass — tidak perlu query permission matrix
-      if (userRoleLevel >= SUPERADMIN_LEVEL) {
-        return [PERMISSION_ALL]
+export async function getUserPermissions(
+  userId: string,
+  userRoleLevel: number,
+): Promise<string[]> {
+  // SUPERADMIN bypass — tidak perlu query permission matrix
+  if (userRoleLevel >= SUPERADMIN_LEVEL) {
+    return [PERMISSION_ALL]
+  }
+
+  try {
+    const supabase = await createClient()
+
+    // Query: ambil semua permission codes dari role_permissions
+    // untuk semua role aktif user (multi-role UNION)
+    const { data, error } = await supabase
+      .from('role_permissions')
+      .select(`
+        permission_id,
+        permissions!inner (
+          kode_permission,
+          is_active
+        ),
+        roles!inner (
+          role_id,
+          is_active
+        )
+      `)
+      .eq('is_active', true)
+      .eq('permissions.is_active', true)
+      .eq('roles.is_active', true)
+      .in('role_id', await getUserRoleIds(userId))
+
+    if (error) {
+      console.error('[permissions] Failed to fetch user permissions:', error.message)
+      return []
+    }
+
+    // Deduplicate permission codes
+    const codes = new Set<string>()
+    for (const row of data ?? []) {
+      const perm = row.permissions as unknown as { kode_permission: string; is_active: boolean }
+      if (perm.is_active) {
+        codes.add(perm.kode_permission)
       }
+    }
 
-      const supabase = await createClient()
-
-      // Query: ambil semua permission codes dari role_permissions
-      // untuk semua role aktif user (multi-role UNION)
-      const { data, error } = await supabase
-        .from('role_permissions')
-        .select(`
-          permission_id,
-          permissions!inner (
-            kode_permission,
-            is_active
-          ),
-          roles!inner (
-            role_id,
-            is_active
-          )
-        `)
-        .eq('is_active', true)
-        .eq('permissions.is_active', true)
-        .eq('roles.is_active', true)
-        .in('role_id', await getUserRoleIds(userId))
-
-      if (error) {
-        console.error('[permissions] Failed to fetch user permissions:', error.message)
-        return []
-      }
-
-      // Deduplicate permission codes
-      const codes = new Set<string>()
-      for (const row of data ?? []) {
-        const perm = row.permissions as unknown as { kode_permission: string; is_active: boolean }
-        if (perm.is_active) {
-          codes.add(perm.kode_permission)
-        }
-      }
-
-      return Array.from(codes).sort()
-    },
-    [`user-permissions-${userId}`],
-    { tags: [`user-permissions-${userId}`, 'permissions'], revalidate: 300 },
-  )()
+    return Array.from(codes).sort()
+  } catch {
+    return []
+  }
 }
 
 // ─── Helper: get role_ids for user ───────────────────────────────

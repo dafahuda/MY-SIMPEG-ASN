@@ -1,5 +1,3 @@
-import { unstable_cache } from 'next/cache'
-
 import { createClient } from '@/supabase/server'
 
 // ─── Type definitions ────────────────────────────────────────────
@@ -20,11 +18,10 @@ export type RoleInfo = {
 export const ROLE_PEGAWAI_CODE = 'PEGAWAI'
 export const SUPERADMIN_LEVEL = 99
 
-// ─── Cached fetch: semua roles aktif ─────────────────────────────
-// Cache selama 1 jam, revalidate via tag 'roles'.
+// ─── Fetch semua roles aktif ─────────────────────────────────────
 
-export const fetchRoles = unstable_cache(
-  async (): Promise<RoleInfo[]> => {
+export async function fetchRoles(): Promise<RoleInfo[]> {
+  try {
     const supabase = await createClient()
     const { data, error } = await supabase
       .from('roles')
@@ -46,10 +43,10 @@ export const fetchRoles = unstable_cache(
       isSystem: r.is_system,
       isActive: r.is_active,
     }))
-  },
-  ['roles'],
-  { tags: ['roles'], revalidate: 3600 },
-)
+  } catch {
+    return []
+  }
+}
 
 // ─── Utility: get role by kode ───────────────────────────────────
 

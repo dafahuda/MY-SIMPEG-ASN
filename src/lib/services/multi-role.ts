@@ -1,5 +1,3 @@
-import { unstable_cache } from 'next/cache'
-
 import { createClient } from '@/supabase/server'
 
 // ─── Type definitions ────────────────────────────────────────────
@@ -40,44 +38,41 @@ const MAX_ACTIVE_ROLES = 3
 
 // ─── getUserActiveRoles ──────────────────────────────────────────
 // Ambil semua role aktif user, sorted by level descending.
-// Cached per userId selama 5 menit.
 
-export function getUserActiveRoles(userId: string) {
-  return unstable_cache(
-    async (): Promise<UserActiveRole[]> => {
-      const supabase = await createClient()
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select(`
-          user_role_id,
-          role_id,
-          assigned_at,
-          roles!inner (
-            kode_role,
-            nama_role,
-            level
-          )
-        `)
-        .eq('user_id', userId)
-        .eq('is_active', true)
+export async function getUserActiveRoles(userId: string): Promise<UserActiveRole[]> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select(`
+        user_role_id,
+        role_id,
+        assigned_at,
+        roles!inner (
+          kode_role,
+          nama_role,
+          level
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('is_active', true)
 
-      if (error) {
-        console.error('[multi-role] Failed to fetch user roles:', error.message)
-        return []
-      }
+    if (error) {
+      console.error('[multi-role] Failed to fetch user roles:', error.message)
+      return []
+    }
 
-      return (data ?? []).map((row: any) => ({
-        userRoleId: row.user_role_id,
-        roleId: row.role_id,
-        kodeRole: row.roles.kode_role,
-        namaRole: row.roles.nama_role,
-        level: row.roles.level,
-        assignedAt: row.assigned_at,
-      })).sort((a: UserActiveRole, b: UserActiveRole) => b.level - a.level)
-    },
-    [`user-roles-${userId}`],
-    { tags: [`user-roles-${userId}`, 'user-roles'], revalidate: 300 },
-  )()
+    return (data ?? []).map((row: any) => ({
+      userRoleId: row.user_role_id,
+      roleId: row.role_id,
+      kodeRole: row.roles.kode_role,
+      namaRole: row.roles.nama_role,
+      level: row.roles.level,
+      assignedAt: row.assigned_at,
+    })).sort((a: UserActiveRole, b: UserActiveRole) => b.level - a.level)
+  } catch {
+    return []
+  }
 }
 
 // ─── getActingRole ───────────────────────────────────────────────
