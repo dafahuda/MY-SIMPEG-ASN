@@ -3,10 +3,11 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
-import { Search, type LucideIcon } from 'lucide-react'
+import { Search } from 'lucide-react'
 
 import type { BrandingData } from '@/lib/services/app-settings'
-import { SIDEBAR_NAV } from '@/lib/constants/navigation'
+import type { NavGroup } from '@/lib/constants/navigation'
+import type { LucideIcon } from '@/lib/utils/icon-resolver'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
@@ -29,33 +30,8 @@ import {
   CommandShortcut,
 } from '@/components/ui/command'
 
-/** Map URL segments to human-readable labels */
-const SEGMENT_LABELS: Record<string, string> = {
-  dashboard: 'Dashboard',
-  pegawai: 'Data Pegawai',
-  jabatan: 'Jabatan',
-  kepangkatan: 'Kepangkatan',
-  pendidikan: 'Pendidikan',
-  diklat: 'Diklat',
-  keluarga: 'Keluarga',
-  kinerja: 'SKP & PAK',
-  disiplin: 'Disiplin',
-  kgb: 'KGB',
-  usulan: 'Usulan',
-  dokumen: 'Dokumen',
-  master: 'Master Data',
-  laporan: 'Laporan',
-  pengaturan: 'Pengaturan',
-}
-
-function getLabel(segment: string): string {
-  return (
-    SEGMENT_LABELS[segment] ??
-    segment.charAt(0).toUpperCase() + segment.slice(1)
-  )
-}
-
 type SearchItem = {
+  menuItemId: string
   title: string
   href: string
   group: string
@@ -64,25 +40,50 @@ type SearchItem = {
 
 type HeaderProps = {
   branding: BrandingData
+  navGroups: NavGroup[]
 }
 
-export function Header({ branding }: HeaderProps) {
+export function Header({ branding, navGroups }: HeaderProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
 
+  // Build search items from DB-driven nav groups
   const searchItems = useMemo<SearchItem[]>(
     () =>
-      SIDEBAR_NAV.flatMap((group) =>
+      navGroups.flatMap((group) =>
         group.items.map((item) => ({
+          menuItemId: item.menuItemId,
           title: item.title,
           href: item.href,
           group: group.label,
           icon: item.icon,
         })),
       ),
-    [],
+    [navGroups],
   )
+
+  // Build segment labels from nav groups for breadcrumb
+  const segmentLabels = useMemo(() => {
+    const labels: Record<string, string> = {}
+    for (const group of navGroups) {
+      for (const item of group.items) {
+        // Extract segment from href: '/pegawai' → 'pegawai'
+        const segment = item.href.replace(/^\//, '')
+        if (segment) {
+          labels[segment] = item.title
+        }
+      }
+    }
+    return labels
+  }, [navGroups])
+
+  function getLabel(segment: string): string {
+    return (
+      segmentLabels[segment] ??
+      segment.charAt(0).toUpperCase() + segment.slice(1)
+    )
+  }
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -163,8 +164,8 @@ export function Header({ branding }: HeaderProps) {
         <CommandInput placeholder="Cari dashboard, pegawai, jabatan, laporan..." />
         <CommandList>
           <CommandEmpty>Menu tidak ditemukan.</CommandEmpty>
-          {SIDEBAR_NAV.map((group) => (
-            <CommandGroup key={group.label} heading={group.label}>
+          {navGroups.map((group) => (
+            <CommandGroup key={group.menuItemId} heading={group.label}>
               {searchItems
                 .filter((item) => item.group === group.label)
                 .map((item) => {
@@ -172,7 +173,7 @@ export function Header({ branding }: HeaderProps) {
 
                   return (
                     <CommandItem
-                      key={item.href}
+                      key={item.menuItemId}
                       value={`${item.title} ${item.group} ${item.href}`}
                       onSelect={() => {
                         router.push(item.href)

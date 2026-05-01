@@ -5,6 +5,7 @@ import { connection } from 'next/server'
 import { createClient } from '@/supabase/server'
 import { getBranding } from '@/lib/services/app-settings'
 import { getSessionWithPermissions } from '@/lib/auth/session'
+import { getMenuForUser } from '@/lib/services/navigation'
 import { provisionPublicUser } from '@/lib/auth/provision-user'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
@@ -63,7 +64,11 @@ export default async function DashboardLayout({
     roles: sessionUser.userRoles,
   }
 
-  const branding = await getBranding()
+  // Fetch data in parallel: branding + dynamic navigation
+  const [branding, navGroups] = await Promise.all([
+    getBranding(),
+    getMenuForUser(sessionUser.userRoles, sessionUser.userRoleLevel),
+  ])
 
   return (
     <PermissionProvider
@@ -71,9 +76,9 @@ export default async function DashboardLayout({
       userRoleLevel={sessionUser.userRoleLevel}
     >
       <SidebarProvider>
-        <AppSidebar user={userInfo} branding={branding} />
+        <AppSidebar user={userInfo} branding={branding} navGroups={navGroups} />
         <SidebarInset>
-          <Header branding={branding} />
+          <Header branding={branding} navGroups={navGroups} />
           <main className="flex-1 overflow-auto p-4 md:p-6">
             <Suspense>{children}</Suspense>
           </main>

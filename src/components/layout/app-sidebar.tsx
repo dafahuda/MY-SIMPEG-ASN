@@ -1,15 +1,12 @@
 'use client'
 
-import { useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ChevronRight, ShieldCheck } from 'lucide-react'
 
 import type { BrandingData } from '@/lib/services/app-settings'
-import { SIDEBAR_NAV } from '@/lib/constants/navigation'
-import { ROUTE_PERMISSIONS } from '@/lib/constants/route-permissions'
-import { usePermissions } from '@/components/auth/permission-context'
+import type { NavGroup } from '@/lib/constants/navigation'
 import {
   Sidebar,
   SidebarContent,
@@ -38,29 +35,11 @@ type AppSidebarProps = {
     roles: string[]
   }
   branding: BrandingData
+  navGroups: NavGroup[]
 }
 
-export function AppSidebar({ user, branding }: AppSidebarProps) {
+export function AppSidebar({ user, branding, navGroups }: AppSidebarProps) {
   const pathname = usePathname()
-  const { permissions, userRoleLevel } = usePermissions()
-
-  // Filter nav items berdasarkan permission user
-  const filteredNav = useMemo(() => {
-    const isSuperAdmin = userRoleLevel >= 99 || permissions.includes('*')
-
-    if (isSuperAdmin) return SIDEBAR_NAV
-
-    return SIDEBAR_NAV
-      .map((group) => ({
-        ...group,
-        items: group.items.filter((item) => {
-          const requiredPermission = ROUTE_PERMISSIONS[item.href]
-          if (!requiredPermission) return true
-          return permissions.includes(requiredPermission)
-        }),
-      }))
-      .filter((group) => group.items.length > 0)
-  }, [permissions, userRoleLevel])
 
   const hasLogo =
     branding.logoUrl &&
@@ -101,9 +80,9 @@ export function AppSidebar({ user, branding }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        {filteredNav.map((group) => (
+        {navGroups.map((group) => (
           <Collapsible
-            key={group.label}
+            key={group.menuItemId}
             defaultOpen
             className="group/collapsible"
           >
@@ -117,20 +96,24 @@ export function AppSidebar({ user, branding }: AppSidebarProps) {
               <CollapsibleContent>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {group.items.map((item) => (
-                      <SidebarMenuItem key={item.href}>
-                        <SidebarMenuButton
-                          asChild
-                          isActive={pathname === item.href}
-                          tooltip={item.title}
-                        >
-                          <Link href={item.href}>
-                            <item.icon />
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
+                    {group.items.map((item) => {
+                      const Icon = item.icon
+
+                      return (
+                        <SidebarMenuItem key={item.menuItemId}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={pathname === item.href}
+                            tooltip={item.title}
+                          >
+                            <Link href={item.href}>
+                              <Icon />
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      )
+                    })}
                   </SidebarMenu>
                 </SidebarGroupContent>
               </CollapsibleContent>
