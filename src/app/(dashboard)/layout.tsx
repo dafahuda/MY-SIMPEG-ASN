@@ -4,9 +4,11 @@ import { connection } from 'next/server'
 
 import { createClient } from '@/supabase/server'
 import { getBranding } from '@/lib/services/app-settings'
+import { getSessionWithPermissions } from '@/lib/auth/session'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { Header } from '@/components/layout/header'
+import { PermissionProvider } from '@/components/auth/permission-context'
 
 export async function generateMetadata(): Promise<Metadata> {
   const branding = await getBranding()
@@ -28,6 +30,11 @@ export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
   await connection()
+
+  // Fetch session + permissions (redirect ke login jika tidak authenticated)
+  const { user: sessionUser, permissions } = await getSessionWithPermissions()
+
+  // Fetch user metadata untuk sidebar display (nama, avatar)
   const supabase = await createClient()
   const {
     data: { user },
@@ -41,20 +48,25 @@ export default async function DashboardLayout({
       'Pengguna',
     email: user?.email ?? '',
     avatar: user?.user_metadata?.avatar_url as string | undefined,
-    role: user?.app_metadata?.role as string | undefined,
+    role: sessionUser.userRoles[0] as string | undefined,
   }
 
   const branding = await getBranding()
 
   return (
-    <SidebarProvider>
-      <AppSidebar user={userInfo} branding={branding} />
-      <SidebarInset>
-        <Header branding={branding} />
-        <main className="flex-1 overflow-auto p-4 md:p-6">
-          <Suspense>{children}</Suspense>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <PermissionProvider
+      permissions={permissions}
+      userRoleLevel={sessionUser.userRoleLevel}
+    >
+      <SidebarProvider>
+        <AppSidebar user={userInfo} branding={branding} />
+        <SidebarInset>
+          <Header branding={branding} />
+          <main className="flex-1 overflow-auto p-4 md:p-6">
+            <Suspense>{children}</Suspense>
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    </PermissionProvider>
   )
 }
