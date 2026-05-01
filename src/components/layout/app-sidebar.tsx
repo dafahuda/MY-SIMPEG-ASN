@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -7,6 +8,8 @@ import { ChevronRight, ShieldCheck } from 'lucide-react'
 
 import type { BrandingData } from '@/lib/services/app-settings'
 import { SIDEBAR_NAV } from '@/lib/constants/navigation'
+import { ROUTE_PERMISSIONS } from '@/lib/constants/route-permissions'
+import { usePermissions } from '@/components/auth/permission-context'
 import {
   Sidebar,
   SidebarContent,
@@ -32,13 +35,32 @@ type AppSidebarProps = {
     name: string
     email: string
     avatar?: string
-    role?: string
+    roles: string[]
   }
   branding: BrandingData
 }
 
 export function AppSidebar({ user, branding }: AppSidebarProps) {
   const pathname = usePathname()
+  const { permissions, userRoleLevel } = usePermissions()
+
+  // Filter nav items berdasarkan permission user
+  const filteredNav = useMemo(() => {
+    const isSuperAdmin = userRoleLevel >= 99 || permissions.includes('*')
+
+    if (isSuperAdmin) return SIDEBAR_NAV
+
+    return SIDEBAR_NAV
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => {
+          const requiredPermission = ROUTE_PERMISSIONS[item.href]
+          if (!requiredPermission) return true
+          return permissions.includes(requiredPermission)
+        }),
+      }))
+      .filter((group) => group.items.length > 0)
+  }, [permissions, userRoleLevel])
 
   const hasLogo =
     branding.logoUrl &&
@@ -79,7 +101,7 @@ export function AppSidebar({ user, branding }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        {SIDEBAR_NAV.map((group) => (
+        {filteredNav.map((group) => (
           <Collapsible
             key={group.label}
             defaultOpen

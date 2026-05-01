@@ -5,6 +5,8 @@ import { BadgeCheck, ChevronsUpDown, LogOut, Settings } from 'lucide-react'
 
 import { createClient } from '@/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { RoleSwitcher } from '@/components/layout/role-switcher'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +28,7 @@ type UserNavProps = {
     name: string
     email: string
     avatar?: string
-    role?: string
+    roles: string[]
   }
 }
 
@@ -46,6 +48,10 @@ export function UserNav({ user }: UserNavProps) {
     await supabase.auth.signOut()
     router.push('/auth/login')
   }
+
+  const roleDisplay = user.roles.length > 0
+    ? user.roles.join(', ')
+    : 'Belum ada role'
 
   return (
     <SidebarMenu>
@@ -67,7 +73,7 @@ export function UserNav({ user }: UserNavProps) {
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {user.role ?? user.email}
+                  {roleDisplay}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -97,6 +103,23 @@ export function UserNav({ user }: UserNavProps) {
                 </div>
               </div>
             </DropdownMenuLabel>
+            {user.roles.length > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <div className="flex flex-wrap gap-1 px-2 py-1.5">
+                  {user.roles.map((role) => (
+                    <Badge key={role} variant="secondary" className="text-xs">
+                      {role}
+                    </Badge>
+                  ))}
+                </div>
+                {user.roles.length > 1 && (
+                  <div className="px-2 pb-1">
+                    <RoleSwitcher roles={user.roles} />
+                  </div>
+                )}
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => router.push('/pengaturan')}>

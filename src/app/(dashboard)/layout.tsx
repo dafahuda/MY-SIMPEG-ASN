@@ -5,6 +5,7 @@ import { connection } from 'next/server'
 import { createClient } from '@/supabase/server'
 import { getBranding } from '@/lib/services/app-settings'
 import { getSessionWithPermissions } from '@/lib/auth/session'
+import { provisionPublicUser } from '@/lib/auth/provision-user'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { Header } from '@/components/layout/header'
@@ -40,6 +41,17 @@ export default async function DashboardLayout({
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Fallback provisioning: jika user login tanpa melalui confirm route
+  // (misalnya signInWithPassword langsung), pastikan public.users ada
+  if (user && !sessionUser.userId) {
+    try {
+      await provisionPublicUser(supabase, user.id, user.email ?? null)
+    } catch {
+      // Fail-open: jangan block dashboard jika provisioning gagal
+      console.warn('[dashboard] Fallback provisioning failed')
+    }
+  }
+
   const userInfo = {
     name:
       user?.user_metadata?.full_name ??
@@ -48,7 +60,7 @@ export default async function DashboardLayout({
       'Pengguna',
     email: user?.email ?? '',
     avatar: user?.user_metadata?.avatar_url as string | undefined,
-    role: sessionUser.userRoles[0] as string | undefined,
+    roles: sessionUser.userRoles,
   }
 
   const branding = await getBranding()
