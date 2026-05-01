@@ -55,6 +55,10 @@ export type Module = Tables<'modules'>
 export type Permission = Tables<'permissions'>
 export type RolePermission = Tables<'role_permissions'>
 
+// Navigation
+export type MenuItem = Tables<'menu_items'>
+export type RoleMenuAccess = Tables<'role_menu_access'>
+
 // Master Data (yang paling sering dipakai)
 export type MasterOpd = Tables<'master_opd'>
 export type MasterUnitKerja = Tables<'master_unit_kerja'>

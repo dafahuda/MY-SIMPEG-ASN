@@ -1619,6 +1619,75 @@ export type Database = {
           },
         ]
       }
+      menu_items: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          grup_label: string | null
+          href: string | null
+          icon_name: string | null
+          is_active: boolean
+          is_visible: boolean
+          kode_menu: string
+          label: string
+          menu_item_id: string
+          module_id: string | null
+          parent_id: string | null
+          updated_at: string
+          updated_by: string | null
+          urutan: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          grup_label?: string | null
+          href?: string | null
+          icon_name?: string | null
+          is_active?: boolean
+          is_visible?: boolean
+          kode_menu: string
+          label: string
+          menu_item_id: string
+          module_id?: string | null
+          parent_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          urutan?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          grup_label?: string | null
+          href?: string | null
+          icon_name?: string | null
+          is_active?: boolean
+          is_visible?: boolean
+          kode_menu?: string
+          label?: string
+          menu_item_id?: string
+          module_id?: string | null
+          parent_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          urutan?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'fk_menu_items_module'
+            columns: ['module_id']
+            isOneToOne: false
+            referencedRelation: 'modules'
+            referencedColumns: ['module_id']
+          },
+          {
+            foreignKeyName: 'fk_menu_items_parent'
+            columns: ['parent_id']
+            isOneToOne: false
+            referencedRelation: 'menu_items'
+            referencedColumns: ['menu_item_id']
+          },
+        ]
+      }
       modules: {
         Row: {
           created_at: string
@@ -2927,6 +2996,54 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      role_menu_access: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          is_visible: boolean
+          menu_item_id: string
+          role_id: string
+          role_menu_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          is_visible?: boolean
+          menu_item_id: string
+          role_id: string
+          role_menu_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          is_visible?: boolean
+          menu_item_id?: string
+          role_id?: string
+          role_menu_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'fk_role_menu_access_role'
+            columns: ['role_id']
+            isOneToOne: false
+            referencedRelation: 'roles'
+            referencedColumns: ['role_id']
+          },
+          {
+            foreignKeyName: 'fk_role_menu_access_menu'
+            columns: ['menu_item_id']
+            isOneToOne: false
+            referencedRelation: 'menu_items'
+            referencedColumns: ['menu_item_id']
+          },
+        ]
       }
       role_permissions: {
         Row: {
