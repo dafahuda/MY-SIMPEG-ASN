@@ -3,6 +3,7 @@ import { forbidden } from 'next/navigation'
 
 import { createClient } from '@/supabase/server'
 import { getUserPermissions, PERMISSION_ALL } from '@/lib/services/permissions'
+import { ROUTE_PERMISSIONS } from '@/lib/constants/route-permissions'
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -21,28 +22,6 @@ export type SessionUser = {
 export type SessionWithPermissions = {
   user: SessionUser
   permissions: string[]
-}
-
-// ─── Route-to-Permission mapping ─────────────────────────────────
-// Mapping route path ke permission code yang dibutuhkan.
-// Digunakan oleh requireRoutePermission() untuk layout-level guard.
-
-const ROUTE_PERMISSIONS: Record<string, string> = {
-  '/dashboard': 'DASHBOARD.VIEW',
-  '/pegawai': 'PEGAWAI.VIEW',
-  '/kepangkatan': 'KEPANGKATAN.VIEW',
-  '/jabatan': 'JABATAN.VIEW',
-  '/pendidikan': 'PENDIDIKAN.VIEW',
-  '/diklat': 'DIKLAT.VIEW',
-  '/keluarga': 'KELUARGA.VIEW',
-  '/kinerja': 'KINERJA.VIEW',
-  '/disiplin': 'DISIPLIN.VIEW',
-  '/kgb': 'KGB.VIEW',
-  '/usulan': 'USULAN.VIEW',
-  '/dokumen': 'DOKUMEN.VIEW',
-  '/master': 'MASTER.VIEW',
-  '/laporan': 'LAPORAN.VIEW',
-  '/pengaturan': 'PENGATURAN.VIEW',
 }
 
 export { ROUTE_PERMISSIONS }
