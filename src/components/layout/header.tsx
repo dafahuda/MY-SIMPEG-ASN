@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
 import { Search, type LucideIcon } from 'lucide-react'
@@ -112,17 +112,23 @@ export function Header({ branding }: HeaderProps) {
               const href = '/' + segments.slice(0, index + 1).join('/')
               const isLast = index === segments.length - 1
 
-              return isLast ? (
-                <BreadcrumbItem key={href}>
-                  <BreadcrumbPage>{getLabel(segment)}</BreadcrumbPage>
-                </BreadcrumbItem>
-              ) : (
-                <BreadcrumbItem key={href}>
-                  <BreadcrumbLink href={href}>
-                    {getLabel(segment)}
-                  </BreadcrumbLink>
+              if (isLast) {
+                return (
+                  <BreadcrumbItem key={href}>
+                    <BreadcrumbPage>{getLabel(segment)}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                )
+              }
+
+              return (
+                <Fragment key={href}>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink href={href}>
+                      {getLabel(segment)}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
                   <BreadcrumbSeparator />
-                </BreadcrumbItem>
+                </Fragment>
               )
             })}
           </BreadcrumbList>
